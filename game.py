@@ -7,7 +7,7 @@ Created on Wed Aug  6 22:55:33 2014
 from interface import *
 import random
 from collections import defaultdict
-from logging import log
+from game_logging import log, gameStatsLog
 
 
 def _try(function, *args, **kwargs):
@@ -58,6 +58,8 @@ class Player:
     def notify_end_bidding(self, declarerID, winningBid, biddingSequence):
         self._bot.notify_end_bidding(declarerID, winningBid, biddingSequence)
 
+    def score_hand(self):
+        return self._bot.score_hand(self.cards)
 
 class Game:
     def __init__(self, players, states, dealerID):
@@ -158,6 +160,7 @@ class Game:
                 
             declarerTricks = takenTricks[declarerID] + takenTricks[self.players[declarerID].partnerID]
             log.event("Declarer needed " + str(winningBid.bidValue + 6) + " tricks and took " + str(declarerTricks))
+            gameStatsLog.log(declarerID, winningBid, takenTricks, self.players)            
             
             pointDeltas = self.calculate_point_delta(declarerID, winningBid, declarerTricks)
             return pointDeltas
@@ -222,6 +225,8 @@ class Match:
                 log.event("Hand complete, current score: " + str(self.teamPoints[0]) + " vs " + str(self.teamPoints[1]))
                 if newGame:
                     log.summary("Game complete, current score: " + str(self.teamPoints[0]) + " vs " + str(self.teamPoints[1]))
+                    
+        gameStatsLog.dump_log()
                     
     @staticmethod
     def _winning_card(cards, trump):

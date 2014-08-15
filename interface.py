@@ -7,7 +7,7 @@ Created on Wed Aug  6 22:36:12 2014
 from collections import namedtuple
 from enum import Enum
 from functools import total_ordering
-from logging import log
+from game_logging import log
 
 SUITS = ('c', 'd', 'h', 's')
 RANKS = ('2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A')
@@ -104,5 +104,8 @@ class Bot:
     def notify_end(self):
         """Invoked for each bot after a match is finished; for debugging."""
         pass
+    
+    def score_hand(self, cards):
+        return None
 
     

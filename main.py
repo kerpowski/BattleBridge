@@ -5,7 +5,7 @@ Created on Thu Aug 14 16:39:38 2014
 @author: jperkowski
 """
 
-from logging import log
+from game_logging import log
 import os
 from game import Match
 import time
@@ -15,7 +15,7 @@ def main(argv):
   
 
     # Note that there's no output when running more than one match
-    log.verbose = True
+    log.verbose = False
     
     names = [x[:-3] for x in os.listdir("bots") if x[-3:] == ".py"]
     names.remove("__init__")
@@ -25,7 +25,7 @@ def main(argv):
     bots = ["kerpowski_bot", "turtle_bot", "kerpowski_bot", "turtle_bot"]
     sys.path.append("bots")
     battle = Match([__import__(x) for x in bots])
-    battle.play(1)
+    battle.play(10000)
     print("")
     print("Completed in", str(int(time.clock() - started)), "seconds")
 

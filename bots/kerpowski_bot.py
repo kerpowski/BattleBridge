@@ -28,7 +28,7 @@ class Kerpowski(Bot):
         self.cards = cards
         
         self.suitLengths = {y:len([x for x in cards if x.suit == y]) for y in SUITS} 
-        self.handValue = self._countHCP()
+        self.handValue = self._countHCP(self.cards)
         
         Kerpowski._debugPrint(self.suitLengths)
         Kerpowski._debugPrint("HCP Value: " + str(self.handValue))
@@ -72,12 +72,15 @@ class Kerpowski(Bot):
         """Invoked for each bot after a match is finished; for debugging."""
         pass
     
+    def score_hand(self, cards):
+        return self._countHCP(cards)
+        
     @staticmethod
     def _cardHCPValue(card):
         return max(RANKS.index(card.value) - 8, 0)
     
-    def _countHCP(self):
-        return sum(map(lambda x: Kerpowski._cardHCPValue(x), self.cards))
+    def _countHCP(self, cards):
+        return sum(map(lambda x: Kerpowski._cardHCPValue(x), cards))
         
         
     
