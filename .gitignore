@@ -37,3 +37,6 @@ Icon
 
 # compiled python files
 *.pyc
+
+# log folder 
+/logs/

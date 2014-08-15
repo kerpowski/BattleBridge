@@ -6,9 +6,12 @@ Created on Thu Aug 14 00:47:20 2014
 """
 from enum import Enum
 import pandas as pd
+import os
+
 
 class Log:
-    def __init__(self):
+    def __init__(self, fileName):
+        self.fileName = fileName
         self.verbose = False
     
     def warn(self, *args):
@@ -30,7 +33,7 @@ class Log:
                 parts.append(str(arg))
         return " ".join(parts)
     
-log = Log()
+log = Log('./logs/event_log.csv')
 log.verbose = False
 
 
@@ -66,7 +69,7 @@ class GameStatsLog:
         self._gameList = []
         
         
-gameStatsLog = GameStatsLog('game_log.csv')
+gameStatsLog = GameStatsLog('./logs/game_log.csv')
 
 class MatchStatsLog:
     def __init__(self, fileName):
@@ -90,4 +93,4 @@ class MatchStatsLog:
         
         self._matchList = []  
 
-matchStatsLog = MatchStatsLog('match_log.csv')
+matchStatsLog = MatchStatsLog('./logs/match_log.csv')

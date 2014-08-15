@@ -12,7 +12,12 @@ import time
 import sys
 
 def main(argv):
-  
+    d = os.path.dirname('logs')
+    print(d)
+    print(os.getcwd())
+    if not os.path.exists(d):
+        os.makedirs('logs')
+        
     log.verbose = True
     
     names = [x[:-3] for x in os.listdir("bots") if x[-3:] == ".py"]
