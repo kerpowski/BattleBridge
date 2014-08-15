@@ -13,9 +13,7 @@ import sys
 
 def main(argv):
   
-
-    # Note that there's no output when running more than one match
-    log.verbose = False
+    log.verbose = True
     
     names = [x[:-3] for x in os.listdir("bots") if x[-3:] == ".py"]
     names.remove("__init__")
@@ -25,7 +23,7 @@ def main(argv):
     bots = ["kerpowski_bot", "turtle_bot", "kerpowski_bot", "turtle_bot"]
     sys.path.append("bots")
     battle = Match([__import__(x) for x in bots])
-    battle.play(10000)
+    battle.play(1)
     print("")
     print("Completed in", str(int(time.clock() - started)), "seconds")
 

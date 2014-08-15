@@ -53,13 +53,20 @@ class Bid:
         return self.bidType
 
     @staticmethod
-    def won_bid_delta(bidValue, bidSuit):
+    def below_point_delta(bidValue, bidSuit):
         if bidSuit in ['c', 'd']:
             return bidValue * 20
         if bidSuit in ['h', 's']:
             return bidValue * 30
         if bidSuit == 'nt':
             return 40 + (bidValue - 1) * 30
+            
+    @staticmethod
+    def above_point_delta(tricksAbove, bidSuit):
+        if bidSuit in ['c', 'd']:
+            return tricksAbove * 20
+        if bidSuit in ['h', 's', 'nt']:
+            return tricksAbove * 30        
             
 class RubberState:
     def __init__(self, aboveTheLine, belowTheLine, isVulnerable):

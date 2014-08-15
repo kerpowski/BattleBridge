@@ -66,7 +66,7 @@ class Game:
         self.players = players
         self.states = states
         self.dealerID = dealerID
-    
+        
     def execute_bidding(self):
         pass
     
@@ -76,6 +76,7 @@ class Game:
     def calculate_point_delta(self, declarerID, winningBid, tricks):
         pointDeltas = [RubberState(0, 0, False), RubberState(0, 0, False)]
         
+        # First check if any player was dealt honors
         for i, p in enumerate(self.players):
             honorsCheck = set([x.value for x in p.cards if x.suit == winningBid.bidSuit]) & set(RANKS[8:])
             if list(honorsCheck).count(True) == 5:
@@ -87,15 +88,34 @@ class Game:
             if winningBid.bidSuit == 'nt' and [x.value for x in p.cards].count('A') == 4:
                 pointDeltas[i % 2].aboveTheLine += 150
        
-        #TODO: take into account doubles, redoubles     
         if tricks - 6 >= winningBid.bidValue:
-            pointDeltas[declarerID % 2].belowTheLine += Bid.won_bid_delta(winningBid.bidValue, winningBid.bidSuit)
+            pointMultiplier = 1
+            if winningBid.bidType == 'double':
+                pointMultiplier = 2
+            if winningBid.bidType == 'redouble':
+                pointMultiplier = 4
+                
+            pointDeltas[declarerID % 2].belowTheLine += pointMultiplier * Bid.below_point_delta(winningBid.bidValue, winningBid.bidSuit)
+            pointDeltas[declarerID % 2].aboveTheLine += pointMultiplier * Bid.above_point_delta(tricks - 6 - winningBid.bidValue, winningBid.bidSuit)
         else:
             # calculate values for getting set  
             if self.states[declarerID % 2].isVulnerable == True:
-                 pointDeltas[(declarerID + 1) % 2].aboveTheLine += 100 * ((winningBid.bidValue + 6) - tricks)
+                 if winningBid.bidType == 'bid':
+                     pointDeltas[(declarerID + 1) % 2].aboveTheLine += 100 * ((winningBid.bidValue + 6) - tricks)
+                 if winningBid.bidType == 'double':
+                     pointDeltas[(declarerID + 1) % 2].aboveTheLine += 200 + 300 * ((winningBid.bidValue + 6) - tricks - 1)
+                 if winningBid.bidType == 'redouble':
+                     pointDeltas[(declarerID + 1) % 2].aboveTheLine += 400 + 600 * ((winningBid.bidValue + 6) - tricks - 1)
             else:
-                 pointDeltas[(declarerID + 1) % 2].aboveTheLine += 50 * ((winningBid.bidValue + 6) - tricks)
+                 if winningBid.bidType == 'bid':
+                     pointDeltas[(declarerID + 1) % 2].aboveTheLine += 50 * ((winningBid.bidValue + 6) - tricks)
+                 if winningBid.bidType == 'double':
+                     doublePenalties = [100,200] + [300] * 11
+                     pointDeltas[(declarerID + 1) % 2].aboveTheLine += sum(doublePenalties[:((winningBid.bidValue + 6) - tricks)])
+                 if winningBid.bidType == 'redouble':
+                     redoublePenalties = [200,400] + [600] * 11
+                     pointDeltas[(declarerID + 1) % 2].aboveTheLine += sum(redoublePenalties[:((winningBid.bidValue + 6) - tricks)])
+                 
         
         for i, delta in enumerate(pointDeltas):
             log.event("Point delta for Team " + str(i) + "... " + str(delta))       
@@ -114,6 +134,8 @@ class Game:
         while not Match._bidding_complete(bidList):
             bid = self.players[i].bid(bidList)
             log.event('Player ' + str(self.players[i]) + ' bids: ' + str(bid))
+            
+            #TODO: handle illegal bids            
             if Match._legal_bid(bid, bidList, self.players[i]):
                 bidList.append(bid)
                 
@@ -146,6 +168,8 @@ class Game:
                 dummyHand = self.players[self.players[declarerID].partnerID].cards
                 for j in range(4):
                     player = self.players[(activePlayer + j) % 4]
+                    
+                    #TODO: handle illegal throws
                     card = player.play_card(playedCards, dummyHand)
                     log.event("Player " + str(player) + " plays: " + str(card))
                     playedCards.append(card)
