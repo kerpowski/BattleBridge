@@ -7,7 +7,7 @@ Created on Wed Aug  6 22:55:33 2014
 from interface import *
 import random
 from collections import defaultdict
-from game_logging import log, gameStatsLog
+from game_logging import log, gameStatsLog, matchStatsLog
 
 
 def _try(function, *args, **kwargs):
@@ -212,7 +212,6 @@ class Match:
         self.players = [Player(i, (i+2)%4, x) for i, x in enumerate(self._bots)]        
         dealerID = self.players[0].identifier
         
-        
         for i in range(iterations):
             dealerID = self.players[i % 4].identifier
             log.event("Start game " + str(i))
@@ -225,8 +224,10 @@ class Match:
                 log.event("Hand complete, current score: " + str(self.teamPoints[0]) + " vs " + str(self.teamPoints[1]))
                 if newGame:
                     log.summary("Game complete, current score: " + str(self.teamPoints[0]) + " vs " + str(self.teamPoints[1]))
+                    matchStatsLog.log(self.teamPoints)
                     
         gameStatsLog.dump_log()
+        matchStatsLog.dump_log()
                     
     @staticmethod
     def _winning_card(cards, trump):

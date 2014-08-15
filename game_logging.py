@@ -52,7 +52,7 @@ class GameStatsLog:
             'player_1_tricks':takenTricks[1],
             'player_2_tricks':takenTricks[2],
             'player_3_tricks':takenTricks[3]}
-        
+            
         self._gameList.append(gameResults)
         
     def dump_log(self, fileName = None):
@@ -67,4 +67,27 @@ class GameStatsLog:
         
         
 gameStatsLog = GameStatsLog('game_log.csv')
+
+class MatchStatsLog:
+    def __init__(self, fileName):
+        self.fileName = fileName
+        self._matchList = []
         
+    def log(self, scores):
+        matchResults = {
+            'team_0_score': scores[0],
+            'team_1_score': scores[1]}
+        
+        self._matchList.append(matchResults)
+        
+    def dump_log(self, fileName = None):
+        if fileName == None:
+            fileName = self.fileName
+            
+        if fileName is not None:
+            logFrame = pd.DataFrame(self._matchList)
+            logFrame.to_csv(fileName)
+        
+        self._matchList = []  
+
+matchStatsLog = MatchStatsLog('match_log.csv')

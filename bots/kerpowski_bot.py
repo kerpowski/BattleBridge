@@ -8,6 +8,7 @@ Created on Wed Aug 13 16:01:04 2014
 from interface import *
 import random
 import copy
+from game import Match
 
 class Kerpowski(Bot):
     
@@ -36,11 +37,32 @@ class Kerpowski(Bot):
     def play_card(self, playedCards, dummyHand):
         """Invoked when the bot has an opportunity to play a card"""
         chosenCard = min(self.cards, key=lambda x: x.value)
+        
         if(len(playedCards) > 0):      
             ledSuitCards = [x for x in self.cards if x.suit == playedCards[0].suit]
+            trumpCards = [x for x in self.cards if x.suit == self.winningBid.bidSuit]
+            nonTrumpCards = [x for x in self.cards if x.suit != self.winningBid.bidSuit]
+            
+            topCard = Match._winning_card(playedCards, self.winningBid.bidSuit)
+                  
             if len(ledSuitCards) > 0:
-                chosenCard = max(ledSuitCards, key=lambda x: x.value)
-        log.event(', '.join(map(lambda x: str(x), self.cards)))
+                if len(playedCards) >= 2:
+                    if playedCards.index(topCard) == (len(playedCards) - 2):
+                        # Don't overthrow our partner
+                        chosenCard = min(ledSuitCards, key=lambda x: x.value)
+                    else:
+                        # If we're not winning try to take it
+                        chosenCard = max(ledSuitCards, key=lambda x: x.value)
+            else:
+                if playedCards.index(topCard) == (len(playedCards) - 2):
+                    # Don't trump in on our partner if he's winning
+                    if len(nonTrumpCards) > 0:
+                        chosenCard = min(nonTrumpCards, key=lambda x: x.value)
+                else:
+                    # Trump in if he isn't
+                    if len(trumpCards) > 0:
+                        chosenCard = min(trumpCards, key=lambda x: x.value)
+                    
         self.cards.remove(chosenCard)
         return chosenCard 
     
@@ -66,6 +88,7 @@ class Kerpowski(Bot):
 
     def notify_end_bidding(self, declarerID, winningBid, biddingSequence):
         """Invoked for each bot after a bid"""
+        self.winningBid = winningBid
         pass
     
     def notify_end(self):
