@@ -13,16 +13,38 @@ class Log:
     def __init__(self, fileName):
         self.fileName = fileName
         self.verbose = False
+        self._eventList = []
     
+    def _logEvent(self, severity, logString):
+        logEvent = {'severity':severity, 'message':logString}
+        self._eventList.append(logEvent)        
+        
     def warn(self, *args):
-        print("Warning: " + self._format(*args))
-
+        logString = "Warning: " + self._format(*args)
+        print(logString)
+        self._logEvent('warning', logString)
+                
     def event(self, *args):
         if self.verbose:
-            print(self._format(*args))
+            logString = self._format(*args)
+            print(logString)
+            self._logEvent('info', logString)
 
     def summary(self, *args):
-        print(self._format(*args)) 
+        logString = self._format(*args)
+        print(logString)
+        self._logEvent('summary', logString)
+
+    def dump_log(self, fileName = None):
+        if fileName == None:
+            fileName = self.fileName
+            
+        if fileName is not None:
+            logFrame = pd.DataFrame(self._eventList)
+            logFrame.to_csv(fileName, index=False)
+        
+        self._eventList = []
+
               
     def _format(self, *args):
         parts = []
@@ -64,7 +86,7 @@ class GameStatsLog:
             
         if fileName is not None:
             logFrame = pd.DataFrame(self._gameList)
-            logFrame.to_csv(fileName)
+            logFrame.to_csv(fileName, index=False)
         
         self._gameList = []
         
@@ -89,7 +111,7 @@ class MatchStatsLog:
             
         if fileName is not None:
             logFrame = pd.DataFrame(self._matchList)
-            logFrame.to_csv(fileName)
+            logFrame.to_csv(fileName, index=False)
         
         self._matchList = []  
 

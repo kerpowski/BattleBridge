@@ -12,7 +12,7 @@ import time
 import sys
 
 def main(argv):
-    d = os.path.dirname('logs')
+    d = os.path.dirname('.\logs')
     print(d)
     print(os.getcwd())
     if not os.path.exists(d):
@@ -30,8 +30,8 @@ def main(argv):
     battle = Match([__import__(x) for x in bots])
     battle.play(1)
     print("")
-    print("Completed in", str(int(time.clock() - started)), "seconds")
-
+    log.summary("Completed in", str(int(time.clock() - started)), "seconds")
+    log.dump_log()
             
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
