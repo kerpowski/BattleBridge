@@ -11,7 +11,7 @@ import copy
 from game import Match
 from utilities import BiddingUtilities
 
-class Kerpowski(Bot):
+class KerpowskiConservative(Bot):
     
     @staticmethod
     def _debugPrint(string):
@@ -25,15 +25,17 @@ class Kerpowski(Bot):
     
     def start(self, cards, ourState, theirState):
         """Invoked on each bot at the start of a new game."""
-        Kerpowski._debugPrint("inside start")        
-        Kerpowski._debugPrint(', '.join(map(lambda x: str(x), cards)))
+        KerpowskiConservative._debugPrint("inside start")        
+        KerpowskiConservative._debugPrint(', '.join(map(lambda x: str(x), cards)))
         self.cards = cards
         
         self.suitLengths = {y:len([x for x in cards if x.suit == y]) for y in SUITS} 
         self.handValue = self._countHCP(self.cards)
+        self._ourState = ourState        
+        self._theirState = theirState
         
-        Kerpowski._debugPrint(self.suitLengths)
-        Kerpowski._debugPrint("HCP Value: " + str(self.handValue))
+        KerpowskiConservative._debugPrint(self.suitLengths)
+        KerpowskiConservative._debugPrint("HCP Value: " + str(self.handValue))
     
     def play_card(self, playedCards, dummyHand):
         """Invoked when the bot has an opportunity to play a card"""
@@ -76,18 +78,31 @@ class Kerpowski(Bot):
         highestCurrentBid = BiddingUtilities.highest_current_bid(currentBids)
         
         potentialBid = Bid(self.identifier, None, None, 'pass')
-        if self.handValue >= 10 and not(any(filter(lambda x: x.bidType != 'pass', currentBids))):
+        
+        minOpenPoints = 10
+        openBid = 1
+        if self._ourState.belowTheLine >= 70:
+            minOpenPoints = 5
+        elif self._ourState.belowTheLine >= 40:
+            minOpenPoints = 8
+            openBid = 2
+            
+        # enough points to open and no previous bids 
+        if self.handValue >= minOpenPoints and not(any(filter(lambda x: x.bidType != 'pass', currentBids))):
             longestSuit = max(self.suitLengths.items(), key=lambda x: x[1])[0]
-            return Bid(self.identifier, 1, longestSuit, 'bid')
-
-        if self.handValue >= 11 and not BiddingUtilities.has_partnership_bid(currentBids):            
+            potentialBid = Bid(self.identifier, openBid, longestSuit, 'bid')
+        
+        # enough points to open and previous bids from other partnership
+        if self.handValue >= 11 and not BiddingUtilities.has_partnership_bid(currentBids):
+            highestCurrentBid = BiddingUtilities.highest_current_bid(currentBids)
             longestSuit = max(self.suitLengths.items(), key=lambda x: x[1])[0]
             potentialBid = Bid(
                 self.identifier, 
-                BiddingUtilities.next_legal_bid(highestCurrentBid, longestSuit), 
+                max(BiddingUtilities.next_legal_bid(highestCurrentBid, longestSuit), openBid), 
                 longestSuit, 
                 'bid')
         
+        # raise partner's bid        
         if len(currentBids) > 2 and currentBids[-2].bidValue is not None and currentBids[-2].bidValue < 2:
             if self.handValue > 6 and currentBids[-2].bidSuit is not None and self.suitLengths[currentBids[-2].bidSuit] > 2:
                 potentialBid = Bid(
@@ -119,9 +134,9 @@ class Kerpowski(Bot):
         return max(RANKS.index(card.value) - 8, 0)
     
     def _countHCP(self, cards):
-        return sum(map(lambda x: Kerpowski._cardHCPValue(x), cards))
+        return sum(map(lambda x: KerpowskiConservative._cardHCPValue(x), cards))
         
         
     
 def make_bot(identifier, partnerID):
-    return Kerpowski(identifier, partnerID)
+    return KerpowskiConservative(identifier, partnerID)

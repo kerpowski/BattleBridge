@@ -18,17 +18,17 @@ def main(argv):
     if not os.path.exists(d):
         os.makedirs('logs')
         
-    log.verbose = True
+    log.verbose = False
     
     names = [x[:-3] for x in os.listdir("bots") if x[-3:] == ".py"]
     names.remove("__init__")
     
     started = time.clock()
     
-    bots = ["kerpowski_bot", "turtle_bot", "kerpowski_bot", "turtle_bot"]
+    bots = ["kerpowski_bot", "kerpowski_conservative_bot", "kerpowski_bot", "kerpowski_conservative_bot"]
     sys.path.append("bots")
     battle = Match([__import__(x) for x in bots])
-    battle.play(1)
+    battle.play(10000)
     print("")
     log.summary("Completed in", str(int(time.clock() - started)), "seconds")
     log.dump_log()

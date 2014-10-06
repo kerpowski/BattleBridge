@@ -8,6 +8,7 @@ from interface import *
 import random
 from collections import defaultdict
 from game_logging import log, gameStatsLog, matchStatsLog
+from utilities import BiddingUtilities
 
 
 def _try(function, *args, **kwargs):
@@ -136,9 +137,11 @@ class Game:
             log.event('Player ' + str(self.players[i]) + ' bids: ' + str(bid))
             
             #TODO: handle illegal bids            
-            if Match._legal_bid(bid, bidList, self.players[i]):
+            if Match.legal_bid(bid, bidList, self.players[i]):
                 bidList.append(bid)
-                
+            else:
+                raise ValueError("{0} is not a valid bid after [{1}]".format(bid, ','.join((str(x) for x in bidList))))
+            
             i = (i + 1) % 4
         
         declarerID = None
@@ -230,28 +233,35 @@ class Match:
         if newGame:
             self.teamStates = [RubberState(0, 0, False), RubberState(0, 0, False)] 
             
-        return newGame
+        return (newGame, newRubber)
         
-    def play(self, iterations=1):
+    def play(self, rubbers=1):
         self.players = [Player(i, (i+2)%4, x) for i, x in enumerate(self._bots)]        
         dealerID = self.players[0].identifier
-        
-        for i in range(iterations):
-            dealerID = self.players[i % 4].identifier
-            log.event("Start game " + str(i))
-            game = Game(self.players, self.teamStates, dealerID)
-            result = game.play()
-            if result is not None:
-                newGame = self._update_match_points(result)
-                for i, state in enumerate(self.teamStates):
-                    log.event("Current state for Team " + str(i) + "... " + str(state)) 
-                log.event("Hand complete, current score: " + str(self.teamPoints[0]) + " vs " + str(self.teamPoints[1]))
-                if newGame:
-                    log.summary("Game complete, current score: " + str(self.teamPoints[0]) + " vs " + str(self.teamPoints[1]))
-                    matchStatsLog.log(self.teamPoints)
-                    
+        currentHand = 0
+
+        for rubber in range(rubbers):
+            newRubber = False 
+            hands = 0
+            while newRubber == False or hands < 20:
+                dealerID = self.players[rubber % 4].identifier
+                log.event("Start hand " + str(currentHand))
+                game = Game(self.players, self.teamStates, dealerID)
+                result = game.play()
+                if result is not None:
+                    newGame, newRubber = self._update_match_points(result)
+                    for i, state in enumerate(self.teamStates):
+                        log.event("Current state for Team {0}... {1}".format(i,state))
+                    log.event("Hand complete, current score: {0} vs {1}".format(self.teamPoints[0], self.teamPoints[1]))
+                    if newGame:
+                        log.summary("Game complete, current score: {0} vs {1}".format(self.teamPoints[0], self.teamPoints[1]))
+                        matchStatsLog.log(self.teamPoints)
+                hands += 1                    
+                currentHand += 1
+            log.summary("Rubber {0} complete".format(rubber))
         gameStatsLog.dump_log()
         matchStatsLog.dump_log()
+        return self.teamPoints
                     
     @staticmethod
     def _winning_card(cards, trump):
@@ -267,23 +277,15 @@ class Match:
         return len(bids) >= 4 and all(map(lambda x: x.bidType == 'pass', bids[-3:]))
         
     @staticmethod
-    def _legal_bid(currentBid, bids, currentPlayer):
-        lastValueBid = None
-        lastNonPassBid = None
+    def legal_bid(currentBid, bids, currentPlayer):
+        lastValueBid = BiddingUtilities.highest_current_bid(bids)
+        lastNonPassBid = BiddingUtilities.last_nonpass_bid(bids)
 
         if currentBid.bidValue is not None and (currentBid.bidValue > 7 or currentBid.bidValue < 1):
             return False
         
         if currentBid.bidType != 'bid' and (currentBid.bidValue is not None or currentBid.bidSuit is not None):
             return False
-        
-        bidList = [x for x in bids if x.bidType == 'bid']
-        if len(bidList) > 0:
-            lastValueBid = bidList[-1]
-
-        lastNonPassBidList = [x for x in bids if x.bidType != 'pass']
-        if len(lastNonPassBidList) > 0:
-            lastNonPassBid = lastNonPassBidList [-1]
         
         if currentBid.bidType == 'bid':
             return lastValueBid is None or currentBid > lastValueBid
