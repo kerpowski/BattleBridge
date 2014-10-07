@@ -74,6 +74,7 @@ class Game:
     def execute_playing(self):
         pass
     
+    
     def calculate_point_delta(self, declarerID, winningBid, tricks):
         pointDeltas = [RubberState(0, 0, False), RubberState(0, 0, False)]
         
@@ -263,7 +264,7 @@ class Match:
         matchStatsLog.dump_log()
         return self.teamPoints
            
-    # TODO: move to utilities 
+    # TODO: move to utilities or Game?
     @staticmethod
     def _winning_card(cards, trump):
         trumpsPlayed = [x for x in cards if x.suit == trump]
@@ -273,12 +274,12 @@ class Match:
         ledSuitPlayed = [x for x in cards if x.suit == cards[0].suit]
         return max(ledSuitPlayed)
     
-    # TODO: move to utilities     
+    # TODO: move to utilities?
     @staticmethod            
     def _bidding_complete(bids):
         return len(bids) >= 4 and all(map(lambda x: x.bidType == 'pass', bids[-3:]))
 
-    # TODO: move to utilities        
+    # TODO: move to utilities or Game?        
     @staticmethod
     def legal_bid(currentBid, bids, playerID, partnerID):
         lastValueBid = BiddingUtilities.highest_current_bid(bids)
@@ -294,7 +295,9 @@ class Match:
             return lastValueBid is None or currentBid > lastValueBid
         
         if currentBid.bidType == 'double':
-            return lastNonPassBid is not None and lastNonPassBid.playerID not in [playerID, partnerID]
+            return (lastNonPassBid is not None 
+                and lastNonPassBid.playerID not in [playerID, partnerID]
+                and lastNonPassBid.bidType == 'bid')
         
         if currentBid.bidType == 'redouble':
             return (lastNonPassBid is not None and 
