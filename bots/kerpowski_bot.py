@@ -45,7 +45,7 @@ class Kerpowski(Bot):
             trumpCards = [x for x in self.cards if x.suit == self.winningBid.bidSuit]
             nonTrumpCards = [x for x in self.cards if x.suit != self.winningBid.bidSuit]
             
-            topCard = Match._winning_card(playedCards, self.winningBid.bidSuit)
+            topCard = Match.winning_card(playedCards, self.winningBid.bidSuit)
                   
             if len(ledSuitCards) > 0:
                 if len(playedCards) >= 2:

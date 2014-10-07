@@ -74,20 +74,20 @@ class Game:
     def execute_playing(self):
         pass
     
-    
-    def calculate_point_delta(self, declarerID, winningBid, tricks):
+    @staticmethod
+    def calculate_point_delta(declarerID, winningBid, tricks, playerHands, rubberStates):
         pointDeltas = [RubberState(0, 0, False), RubberState(0, 0, False)]
         
         # First check if any player was dealt honors
-        for i, p in enumerate(self.players):
-            honorsCheck = set([x.value for x in p.cards if x.suit == winningBid.bidSuit]) & set(RANKS[8:])
-            if list(honorsCheck).count(True) == 5:
+        for i, p in enumerate(playerHands):
+            honorsCheck = set([x.value for x in p if x.suit == winningBid.bidSuit]) & set(RANKS[8:])
+            if len(honorsCheck) == 5:
                 pointDeltas[i % 2].aboveTheLine += 150
 
-            if list(honorsCheck).count(True) == 4:
+            if len(honorsCheck) == 4:
                 pointDeltas[i % 2].aboveTheLine += 100
             
-            if winningBid.bidSuit == 'nt' and [x.value for x in p.cards].count('A') == 4:
+            if winningBid.bidSuit == 'nt' and [x.value for x in p].count('A') == 4:
                 pointDeltas[i % 2].aboveTheLine += 150
        
         if tricks - 6 >= winningBid.bidValue:
@@ -101,7 +101,7 @@ class Game:
             pointDeltas[declarerID % 2].aboveTheLine += pointMultiplier * Bid.above_point_delta(tricks - 6 - winningBid.bidValue, winningBid.bidSuit)
         else:
             # calculate values for getting set  
-            if self.states[declarerID % 2].isVulnerable == True:
+            if rubberStates[declarerID % 2].isVulnerable == True:
                  if winningBid.bidType == 'bid':
                      pointDeltas[(declarerID + 1) % 2].aboveTheLine += 100 * ((winningBid.bidValue + 6) - tricks)
                  if winningBid.bidType == 'double':
@@ -192,10 +192,14 @@ class Game:
                 log.event("Player " + str(player) + " took " + str(takenTricks[player.identifier]) + " tricks")
                 
             declarerTricks = takenTricks[declarerID] + takenTricks[self.players[declarerID].partnerID]
-            log.event("Declarer needed " + str(winningBid.bidValue + 6) + " tricks and took " + str(declarerTricks))
+            log.event("Declarer needed {0} tricks and took {1}".format(str(winningBid.bidValue + 6), declarerTricks))
             gameStatsLog.log(declarerID, winningBid, takenTricks, self.players)            
             
-            pointDeltas = self.calculate_point_delta(declarerID, winningBid, declarerTricks)
+            pointDeltas = Game.calculate_point_delta(declarerID, 
+                                                     winningBid, 
+                                                     declarerTricks,
+                                                     [x.cards for x in self.players], 
+                                                     self.states)
             return pointDeltas
             
         

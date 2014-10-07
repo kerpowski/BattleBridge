@@ -107,13 +107,17 @@ class RubberState:
         self.isVulnerable = isVulnerable
         
     def __str__(self):
-        retVal = "Above: " + str(self.aboveTheLine) 
-        retVal += ", Below: " + str(self.belowTheLine)
-        retVal += ", Vulnerable: " + str(self.isVulnerable)
-        return retVal
-     
+        formatString = 'Above: {0}, Below: {1}, Vulnerable: {2}'
+        return formatString.format(self.aboveTheLine, self.belowTheLine, self.isVulnerable)
+    
+    def __eq__(self, other):
+        return (self.aboveTheLine == other.aboveTheLine 
+                and self.belowTheLine == other.belowTheLine
+                and self.isVulnerable == other.isVulnerable)
+        
     def __add__(self, other):
         return RubberState(self.aboveTheLine + other.aboveTheLine, self.belowTheLine + other.belowTheLine, self.isVulnerable)
+      
         
 class Bot:
     def start(self, cards, ourRubberState, theirRubberState):
