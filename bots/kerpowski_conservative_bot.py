@@ -10,6 +10,7 @@ import random
 import copy
 from game import Match
 from utilities import BiddingUtilities
+from collections import defaultdict
 
 class KerpowskiConservative(Bot):
     
@@ -29,7 +30,7 @@ class KerpowskiConservative(Bot):
         KerpowskiConservative._debugPrint(', '.join(map(lambda x: str(x), cards)))
         self.cards = cards
         
-        self.suitLengths = {y:len([x for x in cards if x.suit == y]) for y in SUITS} 
+        self.suitLengths = defaultdict(int, {y:len([x for x in cards if x.suit == y]) for y in SUITS})
         self.handValue = self._countHCP(self.cards)
         self._ourState = ourState        
         self._theirState = theirState
@@ -39,7 +40,7 @@ class KerpowskiConservative(Bot):
     
     def play_card(self, playedCards, dummyHand):
         """Invoked when the bot has an opportunity to play a card"""
-        chosenCard = min(self.cards, key=lambda x: x.value)
+        chosenCard = max(self.cards, key=lambda x: x.value)
         
         if(len(playedCards) > 0):      
             ledSuitCards = [x for x in self.cards if x.suit == playedCards[0].suit]
@@ -90,12 +91,14 @@ class KerpowskiConservative(Bot):
         # enough points to open and no previous bids 
         if self.handValue >= minOpenPoints and not(any(filter(lambda x: x.bidType != 'pass', currentBids))):
             longestSuit = max(self.suitLengths.items(), key=lambda x: x[1])[0]
+            longestSuit = 'nt'
             potentialBid = Bid(self.identifier, openBid, longestSuit, 'bid')
         
         # enough points to open and previous bids from other partnership
         if self.handValue >= 11 and not BiddingUtilities.has_partnership_bid(currentBids):
             highestCurrentBid = BiddingUtilities.highest_current_bid(currentBids)
             longestSuit = max(self.suitLengths.items(), key=lambda x: x[1])[0]
+            longestSuit = 'nt'
             potentialBid = Bid(
                 self.identifier, 
                 max(BiddingUtilities.next_legal_bid(highestCurrentBid, longestSuit), openBid), 

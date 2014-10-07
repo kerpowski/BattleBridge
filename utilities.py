@@ -28,7 +28,7 @@ class BiddingUtilities:
         nextBidValue = 1        
         if currentBid is not None:
             nextBidValue = currentBid.bidValue
-            if interface.SUITS.index(suit) <= interface.SUITS.index(currentBid.bidSuit):
+            if interface.BIDDING_SUITS.index(suit) <= interface.BIDDING_SUITS.index(currentBid.bidSuit):
                 nextBidValue += 1
         return nextBidValue
     
