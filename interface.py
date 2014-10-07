@@ -9,6 +9,7 @@ from enum import Enum
 from functools import total_ordering
 from game_logging import log
 
+# TODO: move this to enums
 SUITS = ('c', 'd', 'h', 's')
 RANKS = ('2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A')
 BIDDING_SUITS = ('c', 'd', 'h', 's', 'nt')
@@ -52,6 +53,25 @@ class Bid:
             
         return self.bidType
 
+    @staticmethod
+    def from_string(string_value, playerID):
+        string_value = string_value.lower()
+        return_bid = None
+        
+        if string_value in ['pass', 'double', 'redouble']:
+            return_bid = Bid(playerID, None, None, string_value)
+        else:
+            bid_value = int(string_value[0])
+            bid_suit = string_value[1:]
+            if bid_value < 1 or bid_value > 7:
+                raise ValueError('{0} is not a supported bid value'.format(bid_value))
+            if bid_suit not in BIDDING_SUITS:
+                raise ValueError('{0} is not a supported bid suit'.format(bid_suit))
+            return_bid = Bid(playerID, bid_value, bid_suit, 'bid')
+        
+        return return_bid
+        
+    
     @staticmethod
     def below_point_delta(bidValue, bidSuit):
         if bidSuit in ['c', 'd']:

@@ -28,7 +28,7 @@ def main(argv):
     bots = ["kerpowski_bot", "kerpowski_conservative_bot", "kerpowski_bot", "kerpowski_conservative_bot"]
     sys.path.append("bots")
     battle = Match([__import__(x) for x in bots])
-    battle.play(10000)
+    battle.play(10)
     print("")
     log.summary("Completed in", str(int(time.clock() - started)), "seconds")
     log.dump_log()

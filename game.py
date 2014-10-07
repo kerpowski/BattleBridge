@@ -137,7 +137,7 @@ class Game:
             log.event('Player ' + str(self.players[i]) + ' bids: ' + str(bid))
             
             #TODO: handle illegal bids            
-            if Match.legal_bid(bid, bidList, self.players[i]):
+            if Match.legal_bid(bid, bidList, self.players[i].identifier, self.players[i].partnerID):
                 bidList.append(bid)
             else:
                 raise ValueError("{0} is not a valid bid after [{1}]".format(bid, ','.join((str(x) for x in bidList))))
@@ -262,7 +262,8 @@ class Match:
         gameStatsLog.dump_log()
         matchStatsLog.dump_log()
         return self.teamPoints
-                    
+           
+    # TODO: move to utilities 
     @staticmethod
     def _winning_card(cards, trump):
         trumpsPlayed = [x for x in cards if x.suit == trump]
@@ -271,13 +272,15 @@ class Match:
         
         ledSuitPlayed = [x for x in cards if x.suit == cards[0].suit]
         return max(ledSuitPlayed)
-        
+    
+    # TODO: move to utilities     
     @staticmethod            
     def _bidding_complete(bids):
         return len(bids) >= 4 and all(map(lambda x: x.bidType == 'pass', bids[-3:]))
-        
+
+    # TODO: move to utilities        
     @staticmethod
-    def legal_bid(currentBid, bids, currentPlayer):
+    def legal_bid(currentBid, bids, playerID, partnerID):
         lastValueBid = BiddingUtilities.highest_current_bid(bids)
         lastNonPassBid = BiddingUtilities.last_nonpass_bid(bids)
 
@@ -291,16 +294,17 @@ class Match:
             return lastValueBid is None or currentBid > lastValueBid
         
         if currentBid.bidType == 'double':
-            return lastNonPassBid is not None and lastNonPassBid.playerID not in [currentPlayer.identifier, currentPlayer.partnerID]
+            return lastNonPassBid is not None and lastNonPassBid.playerID not in [playerID, partnerID]
         
         if currentBid.bidType == 'redouble':
             return (lastNonPassBid is not None and 
                 lastNonPassBid.bidType == 'double' and
-                lastNonPassBid.playerID not in [currentPlayer.identifier, currentPlayer.partnerID])
+                lastNonPassBid.playerID not in [playerID, partnerID])
                 
         # pass is always legal
         return True
     
+    # TODO: move to utilties
     @staticmethod
     def _legal_throw(card, playedCards, hand):
         ledSuit = None
