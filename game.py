@@ -178,7 +178,12 @@ class Game:
                     log.event("Player " + str(player) + " plays: " + str(card))
                     playedCards.append(card)
                
-                winningCard = Match._winning_card(playedCards, winningBid.bidSuit)
+                trumpSuit = winningBid.bidSuit
+                if winningBid.bidSuit == 'nt':
+                    trumpSuit = playedCards[0].suit
+                    
+                winningCard = Match.winning_card(playedCards, trumpSuit)
+                    
                 log.event("Winning card is: " + str(winningCard))
                 activePlayer = (activePlayer + playedCards.index(winningCard)) % 4
                 takenTricks[activePlayer] += 1
@@ -266,7 +271,7 @@ class Match:
            
     # TODO: move to utilities or Game?
     @staticmethod
-    def _winning_card(cards, trump):
+    def winning_card(cards, trump):
         trumpsPlayed = [x for x in cards if x.suit == trump]
         if len(trumpsPlayed) > 0:
             return max(trumpsPlayed)

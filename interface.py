@@ -29,8 +29,20 @@ class Card:
         return RANKS.index(self.value) < RANKS.index(other.value)
             
     def __eq__(self, other):
-         return RANKS.index(self.value) == RANKS.index(other.value)
-         
+        return RANKS.index(self.value) == RANKS.index(other.value)
+        
+    @staticmethod
+    def from_string(card_string):
+        rank = card_string[0]
+        suit = card_string[1:]
+        
+        if rank not in RANKS:
+            raise ValueError('{0} is not a valid rank'.format(rank))
+        if suit not in SUITS:
+            raise ValueError('{0} is not a valid suit'.format(suit))
+
+        return Card(rank, suit)
+        
 @total_ordering
 class Bid:
     def __init__(self, playerID, bidValue, bidSuit, bidType): 
