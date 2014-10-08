@@ -58,7 +58,7 @@ class TestPlaying(object):
             {
              'name':'3nt made even',
              'declarer':0,            
-             'bid':'3nt',
+             'bid':Bid(0, 3, 'nt', 'bid'),
              'tricks': 9,
              'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
@@ -67,7 +67,7 @@ class TestPlaying(object):
             {
              'name':'NT set by 2, vulnerable',
              'declarer':0,            
-             'bid':'3nt',
+             'bid':Bid(0, 3, 'nt', 'bid'),
              'tricks': 7,
              'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, True), RubberState(0, 0, False)],
@@ -76,7 +76,7 @@ class TestPlaying(object):
             {
              'name':'major set by 4, vulnerable',
              'declarer':0,            
-             'bid':'5s',
+             'bid':Bid(0, 5, 's', 'bid'),
              'tricks': 7,
              'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, True), RubberState(0, 0, False)],
@@ -85,7 +85,7 @@ class TestPlaying(object):
             {
              'name':'1c 3 overs, vulnerable',
              'declarer':0,            
-             'bid':'1c',
+             'bid':Bid(0, 1, 'c', 'bid'),
              'tricks': 10,
              'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, True), RubberState(0, 0, False)],
@@ -94,29 +94,82 @@ class TestPlaying(object):
             {
              'name':'2s set by 1, not vulnerable, little honors',
              'declarer':0,            
-             'bid':'2s',
+             'bid':Bid(0, 2, 's', 'bid'),
              'tricks': 7,
              'hands':[['As', 'Ks', 'Qs', 'Js']] + [[]*3],
              'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
              'results':[RubberState(100, 0, False), RubberState(50, 0, False)]           
             },
             {
-             #TODO: jake create double/redouble tests
              'name':'2s even, not vulnerable, doubled',
              'declarer':0,            
-             'bid':'2s',              
+             'bid':Bid(0, 2, 's', 'double'),              
              'tricks': 8,
              'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
-             'results':[RubberState(100, 0, False), RubberState(50, 0, False)]           
-            }         
+             'results':[RubberState(50, 120, False), RubberState(0, 0, False)]           
+            },
+            {
+             'name':'2s set by 1, not vulnerable, doubled',
+             'declarer':0,            
+             'bid':Bid(0, 2, 's', 'double'),              
+             'tricks': 7,
+             'hands':[[]*4],
+             'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
+             'results':[RubberState(0, 0, False), RubberState(100, 0, False)]           
+            },
+            {
+             'name':'4s set by 3, not vulnerable, doubled',
+             'declarer':0,            
+             'bid':Bid(0, 4, 's', 'double'),              
+             'tricks': 7,
+             'hands':[[]*4],
+             'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
+             'results':[RubberState(0, 0, False), RubberState(500, 0, False)]           
+            },
+            {
+             'name':'4s set by 4, not vulnerable, doubled',
+             'declarer':0,            
+             'bid':Bid(0, 4, 's', 'double'),              
+             'tricks': 6,
+             'hands':[[]*4],
+             'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
+             'results':[RubberState(0, 0, False), RubberState(800, 0, False)]           
+            },
+            {
+             'name':'4s set by 3, not vulnerable, redoubled',
+             'declarer':1,            
+             'bid':Bid(1, 4, 's', 'redouble'),              
+             'tricks': 7,
+             'hands':[[]*4],
+             'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
+             'results':[RubberState(1000, 0, False), RubberState(0, 0, False)]           
+            },
+            {
+             'name':'4s set by 4, not vulnerable, doubled',
+             'declarer':1,            
+             'bid':Bid(1, 4, 's', 'redouble'),              
+             'tricks': 6,
+             'hands':[[]*4],
+             'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
+             'results':[RubberState(1600, 0, False), RubberState(0, 0, False)]           
+            },
+            {
+             'name':'2nt even, vulnerable, redoubled',
+             'declarer':1,            
+             'bid':Bid(1, 2, 'nt', 'redouble'),              
+             'tricks': 8,
+             'hands':[[]*4],
+             'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
+             'results':[RubberState(0, 0, False), RubberState(100, 280, False)]           
+            }
         ]               
         
         for test in scoring_tests:
             hand_list = [[Card.from_string(c) for c in hand] for hand in test['hands']]            
             
             results = Game.calculate_point_delta(test['declarer'], 
-                                                 Bid.from_string(test['bid'], test['declarer']), 
+                                                 test['bid'], 
                                                  test['tricks'], 
                                                  hand_list,
                                                  test['vulnerability'])

@@ -92,10 +92,13 @@ class Game:
        
         if tricks - 6 >= winningBid.bidValue:
             pointMultiplier = 1
-            if winningBid.bidType == 'double':
+            # set the point multiplier and add the insult bonus
+            if winningBid.bidType == 'double':                
                 pointMultiplier = 2
+                pointDeltas[declarerID % 2].aboveTheLine += 50
             if winningBid.bidType == 'redouble':
                 pointMultiplier = 4
+                pointDeltas[declarerID % 2].aboveTheLine += 100
                 
             pointDeltas[declarerID % 2].belowTheLine += pointMultiplier * Bid.below_point_delta(winningBid.bidValue, winningBid.bidSuit)
             pointDeltas[declarerID % 2].aboveTheLine += pointMultiplier * Bid.above_point_delta(tricks - 6 - winningBid.bidValue, winningBid.bidSuit)
@@ -112,10 +115,10 @@ class Game:
                  if winningBid.bidType == 'bid':
                      pointDeltas[(declarerID + 1) % 2].aboveTheLine += 50 * ((winningBid.bidValue + 6) - tricks)
                  if winningBid.bidType == 'double':
-                     doublePenalties = [100,200] + [300] * 11
+                     doublePenalties = [100,200,200] + [300] * 10
                      pointDeltas[(declarerID + 1) % 2].aboveTheLine += sum(doublePenalties[:((winningBid.bidValue + 6) - tricks)])
                  if winningBid.bidType == 'redouble':
-                     redoublePenalties = [200,400] + [600] * 11
+                     redoublePenalties = [200,400,400] + [600] * 11
                      pointDeltas[(declarerID + 1) % 2].aboveTheLine += sum(redoublePenalties[:((winningBid.bidValue + 6) - tricks)])
                  
         
