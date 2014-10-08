@@ -1,7 +1,7 @@
 BattleBridge
 =================
 
-Rubber bridge simulator that allows you create bots and run Monte Carlo sims.
+Rubber bridge simulator that allows you to create bots and run Monte Carlo sims.
 
 Requirements
 ----------------
@@ -16,4 +16,9 @@ Current usage is to derive your bot class from the Bot interface in interfaces.p
 
 Output is a cumulative score for each partnership along with a set of csv files output to the log directory with statistics on each hand.
 
+
+Testing
+-----------------
+
+Run nosetests from the root directory before committing any files.
 
