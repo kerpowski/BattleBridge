@@ -3,8 +3,9 @@ import nose.tools
 from nose.tools import raises
 
 from utilities import BiddingUtilities
-from interface import Bid
+from interface import Bid, BIDDING_SUITS
 from game import Match
+
 
 class TestBidding(object):
     def setup(self):
@@ -40,7 +41,7 @@ class TestBidding(object):
 
     def test_bid_parsing_valid(self):
         for i in range(1,8):
-            for s in interface.BIDDING_SUITS:
+            for s in BIDDING_SUITS:
                 Bid.from_string(str(i)+s, 0)
                 
     def test_bid_parsing_special_bids(self):
@@ -60,5 +61,5 @@ class TestBidding(object):
                             
             nose.tools.assert_list_equal(legal_bids, actual_legal, msg='Bid sequence {0} failed'.format(test_sequence))
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
     nose.runmodule(argv=[__file__, '-vvs'], exit=False)
