@@ -32,18 +32,27 @@ class TestPlaying(object):
             nose.tools.assert_equal(Match.winning_card(played_cards, trump), 
                                     Card.from_string(winner), 
                                     'Error in playing sequence {0} with trump {1}'.format(played, trump))
-    
+
+    #TODO: Add doubled/redoubled tests
+    #TODO: Add slam bonus calculation    
     def test_point_delta(self):
-       #TODO: need a better way to structure this
-        """ per test input should be:
-            Declarer
-            Bid
-            Tricks
-            Hands (only really care about honors)
-            Current RubberStates (only really care about vulnerability?)
+        """ 
+            Currently tests combinations of:
+              Made/lost contracts
+              Vulnerable/not vulnerable 
+              Undoubled contracts
+              Honors bonus
+              
+            per test input should be:
+              Test Name
+              Declarer
+              Bid
+              Tricks
+              Hands (only really care about honors)
+              Current RubberStates (only really care about vulnerability?)
             
             per test output should be:
-            List of two RubberStates that indicate the delta """
+              List of two RubberStates that indicate the delta """
         
         scoring_tests = [
             {
@@ -51,7 +60,7 @@ class TestPlaying(object):
              'declarer':0,            
              'bid':'3nt',
              'tricks': 9,
-             'hands':[]*4,
+             'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
              'results':[RubberState(0, 100, False), RubberState(0, 0, False)]           
             },
@@ -60,7 +69,7 @@ class TestPlaying(object):
              'declarer':0,            
              'bid':'3nt',
              'tricks': 7,
-             'hands':[]*4,
+             'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, True), RubberState(0, 0, False)],
              'results':[RubberState(0, 0, False), RubberState(200, 0, False)]           
             },
@@ -69,7 +78,7 @@ class TestPlaying(object):
              'declarer':0,            
              'bid':'5s',
              'tricks': 7,
-             'hands':[]*4,
+             'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, True), RubberState(0, 0, False)],
              'results':[RubberState(0, 0, False), RubberState(400, 0, False)]           
             },
@@ -78,7 +87,7 @@ class TestPlaying(object):
              'declarer':0,            
              'bid':'1c',
              'tricks': 10,
-             'hands':[]*4,
+             'hands':[[]*4],
              'vulnerability':[RubberState(0, 0, True), RubberState(0, 0, False)],
              'results':[RubberState(60, 20, False), RubberState(0, 0, False)]           
             },
@@ -90,11 +99,21 @@ class TestPlaying(object):
              'hands':[['As', 'Ks', 'Qs', 'Js']] + [[]*3],
              'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
              'results':[RubberState(100, 0, False), RubberState(50, 0, False)]           
+            },
+            {
+             #TODO: jake create double/redouble tests
+             'name':'2s even, not vulnerable, doubled',
+             'declarer':0,            
+             'bid':'2s',              
+             'tricks': 8,
+             'hands':[[]*4],
+             'vulnerability':[RubberState(0, 0, False), RubberState(0, 0, False)],
+             'results':[RubberState(100, 0, False), RubberState(50, 0, False)]           
             }         
         ]               
         
-        for test in scoring_tests[4:]:
-            hand_list = [[Card.from_string(c) for c in cards] for cards in test['hands']]            
+        for test in scoring_tests:
+            hand_list = [[Card.from_string(c) for c in hand] for hand in test['hands']]            
             
             results = Game.calculate_point_delta(test['declarer'], 
                                                  Bid.from_string(test['bid'], test['declarer']), 

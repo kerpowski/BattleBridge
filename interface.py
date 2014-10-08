@@ -149,6 +149,7 @@ class Bot:
         pass
     
     def score_hand(self, cards):
+        """Used for logging purposes.  Will get dumped to the game_log.csv file"""
         return None
 
     
